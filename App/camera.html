@@ -13,7 +13,7 @@
 
 <script type="text/javascript" charset="utf-8">
 
-    var ws = new WebSocket("wss://www.daiyunlang.com:9502");
+    var ws = new WebSocket("wss://"+document.domain+":9502");
     var back = document.getElementById('output');
     var backcontext = back.getContext('2d');
     var video = document.getElementsByTagName('video')[0];
