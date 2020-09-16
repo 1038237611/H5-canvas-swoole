@@ -1,0 +1,60 @@
+<html>
+<head>
+    <script src="adapter.js"></script>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>live cam 录像页面</title>
+</head>
+<body>
+<video autoplay id="sourcevid" style="width:320px;height:240px"></video>
+<br>
+
+
+<canvas id="output" style="display:none"></canvas>
+
+<script type="text/javascript" charset="utf-8">
+
+    var ws = new WebSocket("wss://www.daiyunlang.com:9502");
+    var back = document.getElementById('output');
+    var backcontext = back.getContext('2d');
+    var video = document.getElementsByTagName('video')[0];
+
+    var success = function(stream){
+        video.src = window.URL.createObjectURL(stream);
+    }
+
+    ws.onopen = function(){
+        draw();
+    }
+
+    var draw = function(){
+        try{
+            backcontext.drawImage(video,0,0, back.width, back.height);
+        }catch(e){
+            if (e.name == "NS_ERROR_NOT_AVAILABLE") {
+                return setTimeout(draw, 1000);
+            } else {
+                throw e;
+            }
+        }
+        if(video.src){
+            ws.send(back.toDataURL("image/jpeg", 0.5));
+        }
+        setTimeout(draw, 1000);
+    }
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    //navigator.getUserMedia({video:true, audio:false}, success, console.log);
+    if (navigator.getUserMedia) {
+        console.log('getUserMedia supported.');
+        navigator.getUserMedia({video:true, audio:false}, success, console.log);
+    }else {
+        console.log('getUserMedia do not supported.');
+    }
+
+    window.onbeforeunload = function() {
+        ws.close();
+    };
+</script>
+</body>
+</html>
+
